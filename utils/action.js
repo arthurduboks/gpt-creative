@@ -1,5 +1,6 @@
 "use server";
 import OpenAI from "openai";
+import prisma from "./db";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -24,10 +25,6 @@ export const genChatResponse = async (chatMessage) => {
     console.log(error);
     return null;
   }
-};
-
-export const getExistingCreative = async ({ creative }) => {
-  return null;
 };
 
 export const genCreativeRes = async ({ genContent }) => {
@@ -71,6 +68,50 @@ Response should be in the following JSON format:
   }
 };
 
-export const createNewCreative = async ({ creative }) => {
-  return null;
+export const getExistingCreative = async ({ genContent }) => {
+  prisma.content.findUnique({
+    where: {
+      genContent: genContent,
+    },
+  });
+};
+
+export const createNewCreative = async ({ content }) => {
+  return prisma.content.create({
+    data: {
+      genContent: content.content,
+      title: content.title,
+      description: content.description,
+      image: content.image,
+      suggestions: content.suggestions,
+    },
+  });
+};
+
+export const getAllCreatives = async (searchTerm) => {
+  if (!searchTerm) {
+    const allContent = await prisma.content.findMany({
+      orderBy: {
+        genContent: "asc",
+      },
+    });
+    return allContent;
+  }
+
+  const allContent = await prisma.content.findMany({
+    where: {
+      OR: [
+        {
+          genContent: {
+            contains: searchTerm,
+          },
+        },
+      ],
+    },
+    orderBy: {
+      genContent: "asc",
+    },
+  });
+
+  return allContent;
 };

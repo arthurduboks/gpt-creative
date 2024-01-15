@@ -12,14 +12,19 @@ import CreativeInfo from "./CreativeInfo";
 import toast from "react-hot-toast";
 
 const NewCreative = () => {
+  const queryClient = useQueryClient();
   const {
     mutate,
     isPending,
     data: creative,
   } = useMutation({
     mutationFn: async (dest) => {
+      const existingCreative = await getExistingCreative(dest);
+      if (existingCreative) return existingCreative;
       const newCreative = await genCreativeRes(dest);
       if (newCreative) {
+        await createNewCreative({ content: newCreative });
+        queryClient.invalidateQueries({ queryKey: ["allContent"] });
         return newCreative;
       }
       toast.error("No matching content found...");
@@ -38,7 +43,7 @@ const NewCreative = () => {
   }
   return (
     <>
-      <form onSubmit={handleSubmit} className="max-w-2xl">
+      <form onSubmit={handleSubmit} className="max-w-2xl pt-5">
         <h2 className="mb-4">What do you want to create?</h2>
         <div className="join w-full">
           <input
