@@ -115,3 +115,11 @@ export const getAllCreatives = async (searchTerm) => {
 
   return allContent;
 };
+
+export const getSingleCreative = async (id) => {
+  return prisma.content.findUnique({
+    where: {
+      id,
+    },
+  });
+};

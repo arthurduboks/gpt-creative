@@ -9,6 +9,7 @@ import {
 
 import { LuArrowUpSquare } from "react-icons/lu";
 import CreativeInfo from "./CreativeInfo";
+import Clipboard from "./Clipboard";
 import toast from "react-hot-toast";
 
 const NewCreative = () => {
@@ -45,6 +46,9 @@ const NewCreative = () => {
     <>
       <form onSubmit={handleSubmit} className="max-w-2xl pt-5">
         <h2 className="mb-4">What do you want to create?</h2>
+        <div className="container mx-auto mt-10">
+          <Clipboard text="Create SEO optimized content" />
+        </div>
         <div className="join w-full">
           <input
             type="text"
@@ -58,6 +62,10 @@ const NewCreative = () => {
           </button>
         </div>
       </form>
+      <p className="text-sm italic px-2 py-1 inline-block border-l-4 border-yellow-500 mt-4">
+        To preserve tokens, please enter unique requests as duplicate requests
+        will not be processed.
+      </p>
       <div className="mt-16">
         {creative ? <CreativeInfo content={creative} /> : null}
       </div>

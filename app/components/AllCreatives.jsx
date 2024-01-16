@@ -33,6 +33,9 @@ const AllCreatives = () => {
             {isPending ? "Searching" : "reset"}
           </button>
         </div>
+        <p className="text-sm italic px-2 py-1 inline-block border-l-4 border-yellow-500 mt-4">
+          You will find your content history here.
+        </p>
       </form>
       {isPending ? (
         <span className="loading"></span>

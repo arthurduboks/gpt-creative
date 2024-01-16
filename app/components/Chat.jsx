@@ -47,6 +47,10 @@ const Chat = () => {
         {isPending ? <span className="loading"></span> : null}
       </div>
       <form onSubmit={handleSubmit} className="max-w-4xl pt-12">
+        <p className="text-sm italic px-2 py-1 inline-block border-l-4 border-yellow-500 mb-4">
+          This AI model was prompt engineered to only answer marketing related
+          questions.
+        </p>
         <div className="join w-full">
           <input
             type="text"
