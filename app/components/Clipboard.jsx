@@ -15,11 +15,11 @@ const Clipboard = ({ text }) => {
 
   return (
     <div className="container mx-auto mt-10 mb-4">
-      <div className="flex items-center justify-between text-primary p-4 rounded-xl border border-dashed">
-        <p className="text-gray-700">{text}</p>
+      <div className="flex items-center justify-between text-primary p-1 rounded-xl border border-dashed">
+        <p className="text-gray-700 ml-3">{text}</p>
         <button
           onClick={copyToClipboard}
-          className="btn btn-primary"
+          className="btn btn-ghost"
           type="button"
         >
           Copy
