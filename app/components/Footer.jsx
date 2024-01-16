@@ -12,13 +12,13 @@ const Footer = () => {
           </div>
         </nav>
       </footer>
-      <div class="relative">
-        <div class="bg-primary h-6"></div>
-        <div class="bg-primary h-5 mt-1"></div>
-        <div class="bg-primary h-4 mt-2"></div>
-        <div class="bg-primary h-3 mt-3"></div>
-        <div class="bg-primary h-2 mt-4"></div>
-        <div class="bg-primary h-1 mt-5"></div>
+      <div className="relative">
+        <div className="bg-primary h-6"></div>
+        <div className="bg-primary h-5 mt-1"></div>
+        <div className="bg-primary h-4 mt-2"></div>
+        <div className="bg-primary h-3 mt-3"></div>
+        <div className="bg-primary h-2 mt-4"></div>
+        <div className="bg-primary h-1 mt-5"></div>
       </div>
     </>
   );

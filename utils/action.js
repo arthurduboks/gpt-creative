@@ -1,6 +1,7 @@
 "use server";
 import OpenAI from "openai";
 import prisma from "./db";
+import { revalidatePath } from "next/cache";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -13,14 +14,18 @@ export const genChatResponse = async (chatMessage) => {
         {
           role: "system",
           content:
-            "You are a marketing expert, and will be assisting users with marketing related questions. You can ONLY answer marketing related questions. If user asks anything OUTSIDE marketing scope, politely refuse to answer as you can ONLY assist with marketing related questions / requests.",
+            "You are a marketing expert, and will be assisting users with marketing related questions. You can ONLY answer marketing related questions. If user asks anything OUTSIDE marketing scope, politely refuse to answer as you can ONLY assist with marketing related questions / requests. Limit each response to MAX 300 tokens, and make sure to provide concise response that fits within 300 tokens per response.",
         },
         ...chatMessage,
       ],
       model: "gpt-3.5-turbo",
       temperature: 0,
+      max_tokens: 5000,
     });
-    return response.choices[0].message;
+    return {
+      message: response.choices[0].message,
+      tokens: response.usage.total_tokens,
+    };
   } catch (error) {
     console.log(error);
     return null;
@@ -30,14 +35,14 @@ export const genChatResponse = async (chatMessage) => {
 export const genCreativeRes = async ({ genContent }) => {
   const query = `Create a marketing ${genContent} when user inputs request.
 You can ONLY generate ${genContent} within marketing domain as you are a marketing expert. If user asks for ANYTHING non-related to marketing, politely decline,
-and mention that you can ONLY generate ${genContent} related to marketing. 
+and mention that you can ONLY generate ${genContent} related to marketing. Limit each response to MAX 500 tokens, and make sure to provide concise response that fits within 500 tokens per response.
 Response should be in the following JSON format: 
 {
   "creative": {
     "content": "${genContent}",
     "title": "title of the content",
     "description": "short description of the content",
-    "suggestions": ["short paragraph about 1 suggestion ", "short paragraph about 2 suggestion","short paragraph about 3 suggestion"]
+    "suggestions": ["short paragraph about 1 suggestion, max 1 sentence ", "short paragraph about 2 suggestion max 1 sentence","short paragraph about 3 suggestion max 1 sentence"]
   }
 }
 "suggestions" should include only include 3 suggestions.`;
@@ -61,7 +66,10 @@ Response should be in the following JSON format:
     if (!contentData.creative) {
       return null;
     }
-    return contentData.creative;
+    return {
+      creative: contentData.creative,
+      tokens: response.usage.total_tokens,
+    };
   } catch (error) {
     console.log(error);
     return null;
@@ -69,7 +77,7 @@ Response should be in the following JSON format:
 };
 
 export const getExistingCreative = async ({ genContent }) => {
-  prisma.content.findUnique({
+  return prisma.content.findUnique({
     where: {
       genContent: genContent,
     },
@@ -122,4 +130,45 @@ export const getSingleCreative = async (id) => {
       id,
     },
   });
+};
+
+export const fetchUserToken = async (clerkId) => {
+  const result = await prisma.token.findUnique({
+    where: {
+      clerkId,
+    },
+  });
+  return result?.tokens;
+};
+
+export const genUserTokensId = async (clerkId) => {
+  const result = await prisma.token.create({
+    data: {
+      clerkId,
+    },
+  });
+  return result?.tokens;
+};
+
+export const fetchOrGenTokens = async (clerkId) => {
+  const result = await fetchUserToken(clerkId);
+  if (result) {
+    return result.tokens;
+  }
+  return (await genUserTokensId(clerkId)).tokens;
+};
+
+export const subtractTokens = async (clerkId, tokens) => {
+  const result = await prisma.token.update({
+    where: {
+      clerkId,
+    },
+    data: {
+      tokens: {
+        decrement: tokens,
+      },
+    },
+  });
+  revalidatePath("/profile");
+  return result.tokens;
 };

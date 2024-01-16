@@ -19,3 +19,8 @@ model Content {
   suggestions Json
   @@unique([genContent])
 }
+
+model Token {
+  clerkId String @id
+  tokens Int @default(5000)
+}

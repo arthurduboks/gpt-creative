@@ -5,14 +5,18 @@ import {
   getExistingCreative,
   genCreativeRes,
   createNewCreative,
+  fetchUserToken,
+  subtractTokens,
 } from "@/utils/action";
 
 import { LuArrowUpSquare } from "react-icons/lu";
 import CreativeInfo from "./CreativeInfo";
 import Clipboard from "./Clipboard";
 import toast from "react-hot-toast";
+import { useAuth } from "@clerk/nextjs";
 
 const NewCreative = () => {
+  const { userId } = useAuth();
   const queryClient = useQueryClient();
   const {
     mutate,
@@ -22,16 +26,27 @@ const NewCreative = () => {
     mutationFn: async (dest) => {
       const existingCreative = await getExistingCreative(dest);
       if (existingCreative) return existingCreative;
-      const newCreative = await genCreativeRes(dest);
-      if (newCreative) {
-        await createNewCreative({ content: newCreative });
-        queryClient.invalidateQueries({ queryKey: ["allContent"] });
-        return newCreative;
+
+      const currentTokens = await fetchUserToken(userId);
+      if (currentTokens < 200) {
+        toast.error("Token balance too low");
+        return null;
       }
-      toast.error("No matching content found...");
-      return null;
+
+      const newCreative = await genCreativeRes(dest);
+      if (!newCreative) {
+        toast.error("No matching content found...");
+        return null;
+      }
+
+      await createNewCreative({ content: newCreative.creative });
+      const newTokens = await subtractTokens(userId, newCreative.tokens);
+      queryClient.invalidateQueries({ queryKey: ["allContent"] });
+      toast.success(`${newTokens} tokens remaining`);
+      return newCreative.creative;
     },
   });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -42,6 +57,7 @@ const NewCreative = () => {
   if (isPending) {
     return <span className="loading loading-lg"></span>;
   }
+
   return (
     <>
       <form onSubmit={handleSubmit} className="max-w-2xl pt-5">
