@@ -20,7 +20,7 @@ export const genChatResponse = async (chatMessage) => {
       ],
       model: "gpt-3.5-turbo",
       temperature: 0,
-      max_tokens: 5000,
+      max_tokens: 3000,
     });
     return {
       message: response.choices[0].message,
@@ -35,7 +35,7 @@ export const genChatResponse = async (chatMessage) => {
 export const genCreativeRes = async ({ genContent }) => {
   const query = `Create a marketing ${genContent} when user inputs request.
 You can ONLY generate ${genContent} within marketing domain as you are a marketing expert. If user asks for ANYTHING non-related to marketing, politely decline,
-and mention that you can ONLY generate ${genContent} related to marketing. Limit each response to MAX 500 tokens, and make sure to provide concise response that fits within 500 tokens per response.
+and mention that you can ONLY generate ${genContent} related to marketing. Limit each response to MAX 300 tokens, and make sure to provide concise response that fits within 300 tokens per response.
 Response should be in the following JSON format: 
 {
   "creative": {

@@ -22,5 +22,5 @@ model Content {
 
 model Token {
   clerkId String @id
-  tokens Int @default(5000)
+  tokens Int @default(3000)
 }
