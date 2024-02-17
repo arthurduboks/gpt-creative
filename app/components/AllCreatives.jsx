@@ -4,7 +4,6 @@ import { getAllCreatives } from "@/utils/action";
 import { useQuery } from "@tanstack/react-query";
 import CreativesList from "./CreativesList";
 import { useState } from "react";
-import { LuArrowUpSquare } from "react-icons/lu";
 
 const AllCreatives = () => {
   const [searchValue, setSearchValue] = useState("");
